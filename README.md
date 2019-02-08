@@ -4,6 +4,10 @@
 
 양말 is a command library for catnip.
 
+## Building
+
+Just run `mvn clean package`.
+
 ## Usage
 
 Default prefix is `!`.
