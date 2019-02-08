@@ -1,5 +1,7 @@
 package com.mewna.yangmal.context;
 
+import com.google.common.collect.ImmutableList;
+
 import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class YangmalContext implements PopulatableContext {
     private final Map<String, Object> params = new ConcurrentHashMap<>();
     private final Collection<Arg> args = new ArrayList<>();
+    private final List<Arg> consumableArgs = new ArrayList<>();
     private String prefix;
     private String name;
     private String argstr;
@@ -34,6 +37,7 @@ public class YangmalContext implements PopulatableContext {
         populating = false;
     }
     
+    @Nonnull
     public <T> Context param(final String key, final T value) {
         if(!acceptingParams) {
             throw new IllegalStateException("Attempted to add params to YangmalContext when not accepting params!");
@@ -43,42 +47,48 @@ public class YangmalContext implements PopulatableContext {
     }
     
     @SuppressWarnings("unchecked")
-    public <T> T param(final String key) {
+    public <T> T param(@Nonnull final String key) {
         return (T) params.get(key);
     }
     
+    @Nonnull
     @Override
     public String prefix() {
         return prefix;
     }
     
     @Override
-    public void prefix(final String prefix) {
+    public void prefix(@Nonnull final String prefix) {
         if(!populating) {
-            throw new IllegalStateException("Not populating!");
+            throw new IllegalStateException("Attempted to populate YangmalContext when not populating!");
         }
         this.prefix = prefix;
     }
     
-    @Override
-    public void name(final String name) {
-        this.name = name;
-    }
-    
+    @Nonnull
     @Override
     public String name() {
         return name;
     }
     
     @Override
+    public void name(@Nonnull final String name) {
+        if(!populating) {
+            throw new IllegalStateException("Attempted to populate YangmalContext when not populating!");
+        }
+        this.name = name;
+    }
+    
+    @Nonnull
+    @Override
     public Collection<Arg> args() {
-        return args;
+        return ImmutableList.copyOf(args);
     }
     
     @Override
-    public void args(final List<Arg> args) {
+    public void args(@Nonnull final List<Arg> args) {
         if(!populating) {
-            throw new IllegalStateException("Not populating!");
+            throw new IllegalStateException("Attempted to populate YangmalContext when not populating!");
         }
         this.args.addAll(args);
     }
@@ -91,7 +101,7 @@ public class YangmalContext implements PopulatableContext {
     @Override
     public void argstr(final String argstr) {
         if(!populating) {
-            throw new IllegalStateException("Not populating!");
+            throw new IllegalStateException("Attempted to populate YangmalContext when not populating!");
         }
         this.argstr = argstr;
     }
@@ -99,25 +109,45 @@ public class YangmalContext implements PopulatableContext {
     @Nonnull
     @Override
     public Iterator<Arg> iterator() {
-        // TODO
-        throw new UnsupportedOperationException();
+        return new ContextIterator();
     }
     
     @Override
     public boolean hasNext() {
-        // TODO
-        return false;
+        return !consumableArgs.isEmpty();
     }
     
     @Override
     public Arg next() {
-        // TODO
-        return null;
+        if(consumableArgs.isEmpty()) {
+            return null;
+        }
+        return consumableArgs.remove(0);
     }
     
     @Override
     public Arg peek() {
-        // TODO
-        return null;
+        if(consumableArgs.isEmpty()) {
+            return null;
+        }
+        return consumableArgs.get(0);
+    }
+    
+    @Override
+    public void reset() {
+        consumableArgs.clear();
+        consumableArgs.addAll(args);
+    }
+    
+    public final class ContextIterator implements Iterator<Arg> {
+        @Override
+        public boolean hasNext() {
+            return !consumableArgs.isEmpty();
+        }
+        
+        @Override
+        public Arg next() {
+            return consumableArgs.remove(0);
+        }
     }
 }

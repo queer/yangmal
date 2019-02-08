@@ -1,5 +1,7 @@
 package com.mewna.yangmal.context;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -7,11 +9,11 @@ import java.util.List;
  * @since 2/8/19.
  */
 public interface PopulatableContext extends EditableContext {
-    void prefix(String prefix);
+    void prefix(@Nonnull String prefix);
     
-    void name(String name);
+    void name(@Nonnull String name);
     
-    void args(List<Arg> args);
+    void args(@Nonnull List<Arg> args);
     
-    void argstr(String argstr);
+    void argstr(@Nullable String argstr);
 }
