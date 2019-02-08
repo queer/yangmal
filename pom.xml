@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.mewna.yangmal</groupId>
+    <artifactId>yangmal</artifactId>
+    <version>0.1.0</version>
+
+    <properties>
+        <catnip.version>0.13.3</catnip.version>
+        <immutables.version>2.7.4</immutables.version>
+        <derive4j.version>1.1.0</derive4j.version>
+        <jsr305.version>3.0.2</jsr305.version>
+        <classgraph.version>4.1.6</classgraph.version>
+        <reflectasm.version>1.11.8</reflectasm.version>
+        <slf4j.version>1.7.25</slf4j.version>
+        <commons.lang.version>3.7</commons.lang.version>
+
+        <junit.version>5.2.0</junit.version>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <!-- catnip -->
+        <dependency>
+            <groupId>com.mewna</groupId>
+            <artifactId>catnip</artifactId>
+            <version>${catnip.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Immutables.org -->
+        <dependency>
+            <groupId>org.immutables</groupId>
+            <artifactId>value</artifactId>
+            <version>${immutables.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- derive4j -->
+        <dependency>
+            <groupId>org.derive4j</groupId>
+            <artifactId>derive4j</artifactId>
+            <version>${derive4j.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- JSR 305 -->
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <version>${jsr305.version}</version>
+        </dependency>
+
+        <!-- Classgraph -->
+        <dependency>
+            <groupId>io.github.classgraph</groupId>
+            <artifactId>classgraph</artifactId>
+            <version>${classgraph.version}</version>
+        </dependency>
+
+        <!-- ReflectASM -->
+        <!--
+        Yes yes, I know I'm a monster for using this.
+        Basically, I'm just tired of constantly dealing with reflection
+        generating method accessors with unpredictable names (ie. blowing up my
+        sentry w/ the same error in 5 different ways...), so this is used to
+        try to get predictable stacktraces.
+        No, I won't solve this by just making a non-reflectively-accessed
+        command system
+        -->
+        <dependency>
+            <groupId>com.esotericsoftware</groupId>
+            <artifactId>reflectasm</artifactId>
+            <version>${reflectasm.version}</version>
+        </dependency>
+
+        <!-- slf4j -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+
+        <!-- Commons lang -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons.lang.version}</version>
+        </dependency>
+
+        <!-- JUnit Jupiter -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>11</source>
+                    <target>11</target>
+                </configuration>
+                <version>3.6.1</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>
