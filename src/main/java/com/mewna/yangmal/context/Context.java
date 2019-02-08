@@ -4,6 +4,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Optional;
 
 /**
  * @author amy
@@ -42,6 +43,7 @@ public interface Context extends Iterable<Arg>, Iterator<Arg> {
     /**
      * Peek at the next argument without consuming it. Use {@link #next()} if
      * you want to consume it.
+     *
      * @return The next argument, or {@code null} if none exists.
      */
     @Nullable
@@ -57,4 +59,12 @@ public interface Context extends Iterable<Arg>, Iterator<Arg> {
      */
     @Nullable
     String argstr();
+    
+    /**
+     * @param cls The class to get the service for.
+     *
+     * @return An optional that might contain the service of the given class.
+     */
+    @Nonnull
+    <T> Optional<T> service(@Nonnull Class<T> cls);
 }

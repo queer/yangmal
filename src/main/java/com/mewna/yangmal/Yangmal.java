@@ -16,6 +16,7 @@ import io.github.classgraph.ScanResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -34,6 +35,7 @@ public final class Yangmal extends AbstractExtension {
     
     private final Map<String, CommandContainer> commands = new HashMap<>();
     private final Map<Class<?>, AsyncBiFunction<Context, Arg, ? extends Result<?, Throwable>>> typeConverters = new ConcurrentHashMap<>();
+    private final Map<Class<?>, Optional<?>> contextServices = new ConcurrentHashMap<>();
     
     private final Collection<AsyncBiConsumer<EditableContext, Message>> contextHooks = new ArrayList<>();
     private final Collection<AsyncBiPredicate<Context, Message>> commandChecks = new ArrayList<>();
@@ -48,6 +50,7 @@ public final class Yangmal extends AbstractExtension {
         super("yangmal");
     }
     
+    @Nonnull
     public Yangmal setup() {
         try(final ScanResult res = new ClassGraph().enableAllInfo().scan()) {
             res.getClassesWithMethodAnnotation(Command.class.getName())
@@ -57,56 +60,74 @@ public final class Yangmal extends AbstractExtension {
         return this;
     }
     
-    public Yangmal addContextHook(final AsyncBiConsumer<EditableContext, Message> hook) {
+    @Nonnull
+    public Yangmal addContextHook(@Nonnull final AsyncBiConsumer<EditableContext, Message> hook) {
         contextHooks.add(hook);
         return this;
     }
     
-    public Yangmal addCommandCheck(final AsyncBiPredicate<Context, Message> check) {
+    @Nonnull
+    public Yangmal addCommandCheck(@Nonnull final AsyncBiPredicate<Context, Message> check) {
         commandChecks.add(check);
         return this;
     }
     
-    public <T> Yangmal registerTypeConverter(final Class<T> type, final AsyncBiFunction<Context, Arg, ? extends Result<?, Throwable>> converter) {
+    @Nonnull
+    public <T> Yangmal registerTypeConverter(@Nonnull final Class<T> type,
+                                             @Nonnull final AsyncBiFunction<Context, Arg,
+                                                     ? extends Result<?, Throwable>> converter) {
         typeConverters.put(type, converter);
         return this;
     }
     
-    public Yangmal errorHandler(final Consumer<Throwable> handler) {
+    @Nonnull
+    public <T> Yangmal registerContextService(@Nonnull final Class<T> type, @Nonnull final T service) {
+        contextServices.put(type, Optional.of(service));
+        return this;
+    }
+    
+    @Nonnull
+    public Yangmal errorHandler(@Nonnull final Consumer<Throwable> handler) {
         errorHandler = handler;
         return this;
     }
     
-    public Yangmal prefixSupplier(final AsyncSupplier<Message, List<String>> supplier) {
+    @Nonnull
+    public Yangmal prefixSupplier(@Nonnull final AsyncSupplier<Message, List<String>> supplier) {
         prefixSupplier = supplier;
         return this;
     }
     
-    public Yangmal constantPrefix(final String prefix) {
+    @Nonnull
+    public Yangmal constantPrefix(@Nonnull final String prefix) {
         prefixSupplier = AsyncSupplier.constant(Collections.singletonList(prefix));
         return this;
     }
     
-    public Yangmal invalidCommandHandler(final AsyncBiConsumer<String, Context> handler) {
+    @Nonnull
+    public Yangmal invalidCommandHandler(@Nonnull final AsyncBiConsumer<String, Context> handler) {
         invalidCommandHandler = handler;
         return this;
     }
     
-    public Yangmal notCommandHandler(final AsyncConsumer<Message> handler) {
+    @Nonnull
+    public Yangmal notCommandHandler(@Nonnull final AsyncConsumer<Message> handler) {
         notCommandHandler = handler;
         return this;
     }
     
-    public Yangmal checksFailedHandler(final AsyncTriConsumer<Message, String, Context> handler) {
+    @Nonnull
+    public Yangmal checksFailedHandler(@Nonnull final AsyncTriConsumer<Message, String, Context> handler) {
         checksFailedHandler = handler;
         return this;
     }
     
+    @Nonnull
     public Map<Class<?>, AsyncBiFunction<Context, Arg, ? extends Result<?, Throwable>>> typeConverters() {
         return typeConverters;
     }
     
-    private void runCommand(final Message source) {
+    private void runCommand(@Nonnull final Message source) {
         prefixSupplier.supply(source).thenAccept(prefixes -> {
             // Test for prefixes
             String prefix = null;
@@ -129,6 +150,7 @@ public final class Yangmal extends AbstractExtension {
                             .thenAccept(__ -> {
                                 ctx.stopAcceptingParams();
                                 ctx.startPopulating();
+                                ctx.services(contextServices);
                                 
                                 // Populate prefix, args, ...
                                 ctx.prefix(finalPrefix);
@@ -177,7 +199,7 @@ public final class Yangmal extends AbstractExtension {
         });
     }
     
-    private void loadCommandsFromClass(final Class<?> cls) {
+    private void loadCommandsFromClass(@Nonnull final Class<?> cls) {
         try {
             final Object instance = cls.getDeclaredConstructor().newInstance();
             Arrays.stream(cls.getDeclaredMethods())

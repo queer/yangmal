@@ -14,6 +14,7 @@ public class YangmalContext implements PopulatableContext {
     private final Map<String, Object> params = new ConcurrentHashMap<>();
     private final Collection<Arg> args = new ArrayList<>();
     private final List<Arg> consumableArgs = new ArrayList<>();
+    private final Map<Class<?>, Optional<?>> services = new ConcurrentHashMap<>();
     private String prefix;
     private String name;
     private String argstr;
@@ -104,6 +105,22 @@ public class YangmalContext implements PopulatableContext {
             throw new IllegalStateException("Attempted to populate YangmalContext when not populating!");
         }
         this.argstr = argstr;
+    }
+    
+    @Override
+    public void services(@Nonnull final Map<Class<?>, Optional<?>> services) {
+        if(!populating) {
+            throw new IllegalStateException("Attempted to populate YangmalContext when not populating!");
+        }
+        this.services.clear();
+        this.services.putAll(services);
+    }
+    
+    @Nonnull
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> Optional<T> service(@Nonnull final Class<T> cls) {
+        return (Optional<T>) Optional.ofNullable(services.get(cls));
     }
     
     @Nonnull

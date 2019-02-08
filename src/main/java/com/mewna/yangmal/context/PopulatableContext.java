@@ -3,6 +3,8 @@ package com.mewna.yangmal.context;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author amy
@@ -16,4 +18,6 @@ public interface PopulatableContext extends EditableContext {
     void args(@Nonnull List<Arg> args);
     
     void argstr(@Nullable String argstr);
+    
+    void services(@Nonnull Map<Class<?>, Optional<?>> services);
 }
