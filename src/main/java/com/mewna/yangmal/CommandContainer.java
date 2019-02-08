@@ -18,7 +18,7 @@ public abstract class CommandContainer {
     
     public abstract int index();
     
-    public void invoke(final Context ctx) {
+    void invoke(final Context ctx) {
         access().invoke(object(), index(), ctx);
     }
 }
