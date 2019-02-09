@@ -157,6 +157,7 @@ public final class Yangmal extends AbstractExtension {
                                 
                                 final var nameArgSplit = argstr.split("\\s+", 2);
                                 final var name = nameArgSplit[0];
+                                ctx.name(name);
                                 if(nameArgSplit.length > 1) {
                                     ctx.argstr(nameArgSplit[1]);
                                     ctx.args(Arrays.stream(nameArgSplit[1].split("\\s+", 2))
