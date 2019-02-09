@@ -13,7 +13,6 @@ import com.mewna.yangmal.util.Result;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfo;
 import io.github.classgraph.ScanResult;
-import io.vertx.core.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -132,6 +131,7 @@ public final class Yangmal extends AbstractExtension {
         return typeConverters;
     }
     
+    @SuppressWarnings("WeakerAccess")
     public void runCommand(@Nonnull final Message source) {
         prefixSupplier.supply(source).thenAccept(prefixes -> {
             // Test for prefixes
