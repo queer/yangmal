@@ -8,5 +8,5 @@ import javax.annotation.Nonnull;
  */
 public interface EditableContext extends Context {
     @Nonnull
-    <T> Context param(final String key, final T value);
+    <T> EditableContext param(final String key, final T value);
 }
