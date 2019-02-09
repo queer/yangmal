@@ -127,7 +127,7 @@ public final class Yangmal extends AbstractExtension {
         return typeConverters;
     }
     
-    private void runCommand(@Nonnull final Message source) {
+    public void runCommand(@Nonnull final Message source) {
         prefixSupplier.supply(source).thenAccept(prefixes -> {
             // Test for prefixes
             String prefix = null;
