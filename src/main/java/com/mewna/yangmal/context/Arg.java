@@ -35,9 +35,10 @@ public interface Arg {
                 .apply(ctx(), this);
     }
     
-    static Arg create(final Yangmal yangmal, final String string) {
+    static Arg create(final Yangmal yangmal, final Context ctx, final String string) {
         return YangmalArg.builder()
                 .yangmal(yangmal)
+                .ctx(ctx)
                 .val(string)
                 .build();
     }
