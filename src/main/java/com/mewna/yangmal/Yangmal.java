@@ -13,6 +13,7 @@ import com.mewna.yangmal.util.Result;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfo;
 import io.github.classgraph.ScanResult;
+import io.vertx.core.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,8 +57,12 @@ public final class Yangmal extends AbstractExtension {
             res.getClassesWithMethodAnnotation(Command.class.getName())
                     .stream().map(ClassInfo::loadClass).forEach(this::loadCommandsFromClass);
         }
-        catnip().on(DiscordEvent.MESSAGE_CREATE, this::runCommand);
         return this;
+    }
+    
+    @Override
+    public void start() {
+        catnip().on(DiscordEvent.MESSAGE_CREATE, this::runCommand);
     }
     
     @Nonnull
