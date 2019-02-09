@@ -39,7 +39,7 @@ public class YangmalContext implements PopulatableContext {
     }
     
     @Nonnull
-    public <T> Context param(final String key, final T value) {
+    public <T> EditableContext param(final String key, final T value) {
         if(!acceptingParams) {
             throw new IllegalStateException("Attempted to add params to YangmalContext when not accepting params!");
         }
