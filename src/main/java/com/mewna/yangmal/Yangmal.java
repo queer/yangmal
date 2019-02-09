@@ -4,6 +4,7 @@ import com.esotericsoftware.reflectasm.MethodAccess;
 import com.mewna.catnip.entity.message.Message;
 import com.mewna.catnip.extension.AbstractExtension;
 import com.mewna.catnip.shard.DiscordEvent;
+import com.mewna.catnip.util.SafeVertxCompletableFuture;
 import com.mewna.yangmal.context.Arg;
 import com.mewna.yangmal.context.Context;
 import com.mewna.yangmal.context.EditableContext;
@@ -45,6 +46,7 @@ public final class Yangmal extends AbstractExtension {
     private AsyncBiConsumer<String, Context> invalidCommandHandler = (__, ___) -> CompletableFuture.completedFuture(null);
     private AsyncConsumer<Message> notCommandHandler = __ -> CompletableFuture.completedFuture(null);
     private AsyncTriConsumer<Message, String, Context> checksFailedHandler = (__, ___, ____) -> CompletableFuture.completedFuture(null);
+    private Consumer<Runnable> commandRunner = Runnable::run;
     
     public Yangmal() {
         super("yangmal");
@@ -127,6 +129,12 @@ public final class Yangmal extends AbstractExtension {
     }
     
     @Nonnull
+    public Yangmal commandRunner(@Nonnull final Consumer<Runnable> commandRunner) {
+        this.commandRunner = commandRunner;
+        return this;
+    }
+    
+    @Nonnull
     public Map<Class<?>, AsyncBiFunction<Context, Arg, ? extends Result<?, Throwable>>> typeConverters() {
         return typeConverters;
     }
@@ -151,7 +159,7 @@ public final class Yangmal extends AbstractExtension {
                 if(!argstr.isEmpty()) {
                     // If the argstr isn't empty after removing the prefix, then we must have at least a name
                     final String finalPrefix = prefix;
-                    CompletableFuture.allOf(contextHooks.stream().map(e -> e.consume(ctx, source)).toArray(CompletableFuture[]::new))
+                    SafeVertxCompletableFuture.allOf(catnip(), contextHooks.stream().map(e -> e.consume(ctx, source)).toArray(CompletableFuture[]::new))
                             .thenAccept(__ -> {
                                 ctx.stopAcceptingParams();
                                 ctx.startPopulating();
@@ -178,12 +186,12 @@ public final class Yangmal extends AbstractExtension {
                                 // Check if we can run the command
                                 final List<CompletableFuture<Boolean>> checkFutures = commandChecks.stream()
                                         .map(e -> e.test(ctx, source)).collect(Collectors.toList());
-                                CompletableFuture.allOf(checkFutures.toArray(new CompletableFuture[0])).thenAccept(___ -> {
+                                SafeVertxCompletableFuture.allOf(catnip(), checkFutures.toArray(new CompletableFuture[0])).thenAccept(___ -> {
                                     if(checkFutures.stream().allMatch(e -> e.getNow(false))) {
                                         // All checks passed, execute!
-                                        Optional.ofNullable(commands.get(ctx.name()))
+                                        commandRunner.accept(() -> Optional.ofNullable(commands.get(ctx.name()))
                                                 .ifPresentOrElse(cmd -> cmd.invoke(ctx),
-                                                        () -> invalidCommandHandler.consume(ctx.name(), ctx));
+                                                        () -> invalidCommandHandler.consume(ctx.name(), ctx)));
                                     } else {
                                         // Warn that checks failed
                                         checksFailedHandler.consume(source, ctx.name(), ctx);
