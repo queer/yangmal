@@ -19,6 +19,10 @@ public abstract class CommandContainer {
     public abstract int index();
     
     void invoke(final Context ctx) {
-        access().invoke(object(), index(), ctx);
+        try {
+            access().invoke(object(), index(), ctx);
+        } catch(final Exception e) {
+            e.printStackTrace();
+        }
     }
 }
