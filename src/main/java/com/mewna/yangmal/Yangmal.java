@@ -224,6 +224,7 @@ public final class Yangmal extends AbstractExtension {
                                 // a giant meme :K
                                 //noinspection UnnecessaryFullyQualifiedName
                                 commands.put(name, com.mewna.yangmal.YangmalCommandContainer.builder()
+                                        .yangmal(this)
                                         .object(instance)
                                         .access(access)
                                         .index(index)

@@ -12,6 +12,8 @@ import org.immutables.value.Value.Style;
 @Immutable
 @Style(typeImmutable = "Yangmal*")
 public abstract class CommandContainer {
+    public abstract Yangmal yangmal();
+    
     public abstract Object object();
     
     public abstract MethodAccess access();

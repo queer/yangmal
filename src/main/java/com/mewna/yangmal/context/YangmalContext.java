@@ -120,7 +120,7 @@ public class YangmalContext implements PopulatableContext {
     @Override
     @SuppressWarnings("unchecked")
     public <T> Optional<T> service(@Nonnull final Class<T> cls) {
-        return (Optional<T>) Optional.ofNullable(services.get(cls));
+        return (Optional<T>) services.get(cls);
     }
     
     @Nonnull
