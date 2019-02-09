@@ -4,6 +4,8 @@
 
 양말 is a command library for catnip.
 
+I'll move it to the Mewna org eventually.
+
 ## Building
 
 Just run `mvn clean package`.
