@@ -241,6 +241,7 @@ public final class Yangmal extends AbstractExtension {
                                         .index(index)
                                         .build());
                             }
+                            logger.info("Loaded commands {} from class {}.", cmd.names(), cls.getName());
                         }
                     });
         } catch(final InstantiationException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
