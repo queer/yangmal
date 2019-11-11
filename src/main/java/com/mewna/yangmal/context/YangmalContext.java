@@ -1,7 +1,5 @@
 package com.mewna.yangmal.context;
 
-import com.google.common.collect.ImmutableList;
-
 import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -83,7 +81,7 @@ public class YangmalContext implements PopulatableContext {
     @Nonnull
     @Override
     public Collection<Arg> args() {
-        return ImmutableList.copyOf(args);
+        return List.copyOf(args);
     }
     
     @Override

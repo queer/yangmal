@@ -1,12 +1,10 @@
 package com.mewna.yangmal.context;
 
 import com.mewna.yangmal.Yangmal;
-import com.mewna.yangmal.function.AsyncBiFunction;
 import com.mewna.yangmal.util.Result;
+import io.reactivex.Single;
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Style;
-
-import java.util.concurrent.CompletableFuture;
 
 /**
  * @author amy
@@ -15,6 +13,14 @@ import java.util.concurrent.CompletableFuture;
 @Immutable
 @Style(typeImmutable = "Yangmal*")
 public interface Arg {
+    static Arg create(final Yangmal yangmal, final Context ctx, final String string) {
+        return YangmalArg.builder()
+                .yangmal(yangmal)
+                .ctx(ctx)
+                .val(string)
+                .build();
+    }
+    
     Yangmal yangmal();
     
     Context ctx();
@@ -26,20 +32,13 @@ public interface Arg {
     }
     
     default <T> Result<T, Throwable> cast(final Class<T> as) {
-        return castAsync(as).join();
+        return castAsync(as).blockingGet();
     }
     
     @SuppressWarnings("unchecked")
-    default <T> CompletableFuture<Result<T, Throwable>> castAsync(final Class<T> as) {
-        return ((AsyncBiFunction<Context, Arg, Result<T, Throwable>>) yangmal().typeConverters().get(as))
-                .apply(ctx(), this);
-    }
-    
-    static Arg create(final Yangmal yangmal, final Context ctx, final String string) {
-        return YangmalArg.builder()
-                .yangmal(yangmal)
-                .ctx(ctx)
-                .val(string)
-                .build();
+    default <T> Single<? extends Result<T, Throwable>> castAsync(final Class<T> as) {
+        final var converter = yangmal().typeConverters().get(as);
+        final Single<? extends Result<?, Throwable>> converted = converter.apply(ctx(), this);
+        return (Single<? extends Result<T, Throwable>>) converted;
     }
 }
