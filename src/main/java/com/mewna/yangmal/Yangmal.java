@@ -60,13 +60,8 @@ public final class Yangmal extends AbstractExtension {
             res.getClassesWithMethodAnnotation(Command.class.getName())
                     .stream().map(ClassInfo::loadClass).forEach(this::loadCommandsFromClass);
         }
+        flowable(DiscordEvent.MESSAGE_CREATE).subscribe(this::runCommand);
         return this;
-    }
-    
-    @Override
-    public Completable onLoaded() {
-        catnip().on(DiscordEvent.MESSAGE_CREATE, this::runCommand);
-        return Completable.complete();
     }
     
     @Nonnull
