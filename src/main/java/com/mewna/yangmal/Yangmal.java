@@ -40,7 +40,7 @@ public final class Yangmal extends AbstractExtension {
     private final Map<Class<?>, BiFunction<Context, Arg, Single<? extends Result<?, Throwable>>>> typeConverters = new ConcurrentHashMap<>();
     private final Map<Class<?>, Optional<?>> contextServices = new ConcurrentHashMap<>();
     
-    private final Collection<BiFunction<EditableContext, Message, Single<?>>> contextHooks = new ArrayList<>();
+    private final Collection<BiFunction<EditableContext, Message, Completable>> contextHooks = new ArrayList<>();
     private final Collection<BiFunction<Context, Message, Single<Boolean>>> commandChecks = new ArrayList<>();
     
     private Consumer<Throwable> errorHandler = e -> logger.warn("Encountered error during command processing:", e);
@@ -70,7 +70,7 @@ public final class Yangmal extends AbstractExtension {
     }
     
     @Nonnull
-    public Yangmal addContextHook(@Nonnull final BiFunction<EditableContext, Message, Single<?>> hook) {
+    public Yangmal addContextHook(@Nonnull final BiFunction<EditableContext, Message, Completable> hook) {
         contextHooks.add(hook);
         return this;
     }
@@ -163,11 +163,11 @@ public final class Yangmal extends AbstractExtension {
                         if(!argstr.isEmpty()) {
                             // If the argstr isn't empty after removing the prefix, then we must have at least a name
                             final String finalPrefix = prefix;
-                            
-                            Single.zip(contextHooks.stream().map(f -> f.apply(ctx, source))
-                                            .collect(Collectors.toUnmodifiableList()),
-                                    data -> Arrays.stream(data).allMatch(e -> e == Boolean.TRUE))
-                                    .doOnSuccess(res -> {
+                            Completable.concat(contextHooks.stream().map(f -> f.apply(ctx, source))
+                                    .collect(Collectors.toUnmodifiableList()))
+                                    .subscribeOn(catnip().rxScheduler())
+                                    .observeOn(catnip().rxScheduler())
+                                    .subscribe(() -> {
                                         ctx.stopAcceptingParams();
                                         ctx.startPopulating();
                                         ctx.services(contextServices);
@@ -204,11 +204,7 @@ public final class Yangmal extends AbstractExtension {
                                                     }
                                                 })
                                                 .doOnError(e -> errorHandler.accept(e));
-                                    })
-                                    .doOnError(e -> errorHandler.accept(e))
-                                    .subscribeOn(catnip().rxScheduler())
-                                    .observeOn(catnip().rxScheduler())
-                                    .subscribe();
+                                    }, e -> errorHandler.accept(e));
                         } else {
                             // Not a command (nothing after prefix)
                             notCommandHandler.apply(source);
