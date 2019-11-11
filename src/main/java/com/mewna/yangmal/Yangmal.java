@@ -22,7 +22,6 @@ import javax.annotation.Nonnull;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -41,11 +40,11 @@ public final class Yangmal extends AbstractExtension {
     private final Map<Class<?>, BiFunction<Context, Arg, Single<? extends Result<?, Throwable>>>> typeConverters = new ConcurrentHashMap<>();
     private final Map<Class<?>, Optional<?>> contextServices = new ConcurrentHashMap<>();
     
-    private final Collection<BiFunction<EditableContext, Message, Single<Boolean>>> contextHooks = new ArrayList<>();
+    private final Collection<BiFunction<EditableContext, Message, Single<?>>> contextHooks = new ArrayList<>();
     private final Collection<BiFunction<Context, Message, Single<Boolean>>> commandChecks = new ArrayList<>();
     
     private Consumer<Throwable> errorHandler = e -> logger.warn("Encountered error during command processing:", e);
-    private Function<Message, Single<List<String>>> prefixSupplier = __ -> Single.fromFuture(CompletableFuture.completedFuture(List.of("!")));
+    private Function<Message, Single<List<String>>> prefixSupplier = __ -> Single.just(List.of("!"));
     private BiFunction<String, Context, Completable> invalidCommandHandler = (__, ___) -> Completable.complete();
     private Function<Message, Completable> notCommandHandler = __ -> Completable.complete();
     private TriFunction<Message, String, Context, Completable> checksFailedHandler = (__, ___, ____) -> Completable.complete();
@@ -71,7 +70,7 @@ public final class Yangmal extends AbstractExtension {
     }
     
     @Nonnull
-    public Yangmal addContextHook(@Nonnull final BiFunction<EditableContext, Message, Single<Boolean>> hook) {
+    public Yangmal addContextHook(@Nonnull final BiFunction<EditableContext, Message, Single<?>> hook) {
         contextHooks.add(hook);
         return this;
     }
@@ -110,7 +109,7 @@ public final class Yangmal extends AbstractExtension {
     
     @Nonnull
     public Yangmal constantPrefix(@Nonnull final String prefix) {
-        prefixSupplier = __ -> Single.fromFuture(CompletableFuture.completedFuture(List.of("!")));
+        prefixSupplier = __ -> Single.just(List.of("!"));
         return this;
     }
     
