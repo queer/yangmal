@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  * @author amy
  * @since 2/7/19.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "ResultOfMethodCallIgnored"})
 public final class Yangmal extends AbstractExtension {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     
@@ -149,6 +149,7 @@ public final class Yangmal extends AbstractExtension {
                             break;
                         }
                     }
+                    logger.trace("Found prefix: {}", prefix);
                     if(prefix != null) {
                         // Have a valid command, process hooks
                         final YangmalContext ctx = new YangmalContext();
@@ -158,48 +159,16 @@ public final class Yangmal extends AbstractExtension {
                         if(!argstr.isEmpty()) {
                             // If the argstr isn't empty after removing the prefix, then we must have at least a name
                             final String finalPrefix = prefix;
-                            Completable.concat(contextHooks.stream().map(f -> f.apply(ctx, source))
-                                    .collect(Collectors.toUnmodifiableList()))
-                                    .subscribeOn(catnip().rxScheduler())
-                                    .observeOn(catnip().rxScheduler())
-                                    .subscribe(() -> {
-                                        ctx.stopAcceptingParams();
-                                        ctx.startPopulating();
-                                        ctx.services(contextServices);
-                                        
-                                        // Populate prefix, args, ...
-                                        ctx.prefix(finalPrefix);
-                                        
-                                        final var nameArgSplit = argstr.split("\\s+", 2);
-                                        final var name = nameArgSplit[0];
-                                        ctx.name(name);
-                                        if(nameArgSplit.length > 1) {
-                                            ctx.argstr(nameArgSplit[1]);
-                                            ctx.args(Arrays.stream(nameArgSplit[1].split("\\s+", 2))
-                                                    .map(e -> Arg.create(this, ctx, e))
-                                                    .collect(Collectors.toList()));
-                                        } else {
-                                            ctx.argstr(null);
-                                            ctx.args(Collections.emptyList());
-                                        }
-                                        
-                                        ctx.stopPopulating();
-                                        
-                                        // Check if the command can even be run
-                                        Single.zip(commandChecks.stream().map(f -> f.apply(ctx, source))
-                                                        .collect(Collectors.toUnmodifiableList()),
-                                                data -> Arrays.stream(data).allMatch(e -> e == Boolean.TRUE))
-                                                .doOnSuccess(res2 -> {
-                                                    if(res2) {
-                                                        commandRunner.accept(() -> Optional.ofNullable(commands.get(ctx.name()))
-                                                                .ifPresentOrElse(cmd -> cmd.invoke(ctx),
-                                                                        () -> invalidCommandHandler.apply(ctx.name(), ctx)));
-                                                    } else {
-                                                        checksFailedHandler.consume(source, ctx.name(), ctx);
-                                                    }
-                                                })
-                                                .doOnError(e -> errorHandler.accept(e));
-                                    }, e -> errorHandler.accept(e));
+                            if(contextHooks.isEmpty()) {
+                                finishPopulatingContext(ctx, source, finalPrefix, argstr);
+                            } else {
+                                Completable.concat(contextHooks.stream().map(f -> f.apply(ctx, source))
+                                        .collect(Collectors.toUnmodifiableList()))
+                                        .subscribeOn(catnip().rxScheduler())
+                                        .observeOn(catnip().rxScheduler())
+                                        .subscribe(() -> finishPopulatingContext(ctx, source, finalPrefix, argstr),
+                                                e -> errorHandler.accept(e));
+                            }
                         } else {
                             // Not a command (nothing after prefix)
                             notCommandHandler.apply(source);
@@ -209,6 +178,56 @@ public final class Yangmal extends AbstractExtension {
                         notCommandHandler.apply(source);
                     }
                 }, e -> errorHandler.accept(e));
+    }
+    
+    private void finishPopulatingContext(final YangmalContext ctx, final Message source, final String prefix,
+                                         final String argstr) {
+        logger.trace("Populated context from hooks");
+        ctx.stopAcceptingParams();
+        ctx.startPopulating();
+        ctx.services(contextServices);
+        
+        // Populate prefix, args, ...
+        ctx.prefix(prefix);
+        
+        final var nameArgSplit = argstr.split("\\s+", 2);
+        final var name = nameArgSplit[0];
+        ctx.name(name);
+        if(nameArgSplit.length > 1) {
+            ctx.argstr(nameArgSplit[1]);
+            ctx.args(Arrays.stream(nameArgSplit[1].split("\\s+", 2))
+                    .map(e -> Arg.create(this, ctx, e))
+                    .collect(Collectors.toList()));
+        } else {
+            ctx.argstr(null);
+            ctx.args(Collections.emptyList());
+        }
+        
+        ctx.stopPopulating();
+        logger.trace("Finished populating context");
+        
+        // Check if the command can even be run
+        if(commandChecks.isEmpty()) {
+            doRunCommand(ctx);
+        } else {
+            Single.zip(commandChecks.stream().map(f -> f.apply(ctx, source))
+                            .collect(Collectors.toUnmodifiableList()),
+                    data -> Arrays.stream(data).allMatch(e -> e == Boolean.TRUE))
+                    .subscribe(res2 -> {
+                        if(res2) {
+                            logger.trace("Running command via all checks passing");
+                            doRunCommand(ctx);
+                        } else {
+                            checksFailedHandler.consume(source, ctx.name(), ctx);
+                        }
+                    }, e -> errorHandler.accept(e));
+        }
+    }
+    
+    private void doRunCommand(final Context ctx) {
+        commandRunner.accept(() -> Optional.ofNullable(commands.get(ctx.name()))
+                .ifPresentOrElse(cmd -> cmd.invoke(ctx),
+                        () -> invalidCommandHandler.apply(ctx.name(), ctx)));
     }
     
     private void loadCommandsFromClass(@Nonnull final Class<?> cls) {
