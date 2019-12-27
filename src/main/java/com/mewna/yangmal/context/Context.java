@@ -67,4 +67,9 @@ public interface Context extends Iterable<Arg>, Iterator<Arg> {
      */
     @Nonnull
     <T> Optional<T> service(@Nonnull Class<T> cls);
+    
+    /**
+     * @param ctx The context to fill from.
+     */
+    void fillFrom(@Nonnull Context ctx);
 }
