@@ -36,6 +36,20 @@ public class YangmalContext implements PopulatableContext {
         populating = false;
     }
     
+    public void fillFrom(@Nonnull YangmalContext ctx) {
+        params.clear();
+        args.clear();
+        consumableArgs.clear();
+        services.clear();
+        params.addAll(ctx.params);
+        args.addAll(ctx.args);
+        consumableArgs.addAll(ctx.consumableArgs);
+        services.addAll(ctx.services);
+        prefix = ctx.prefix;
+        name = ctx.name;
+        argstr = ctx.argstr;
+    }
+    
     @Nonnull
     public <T> EditableContext param(final String key, final T value) {
         if(!acceptingParams) {
