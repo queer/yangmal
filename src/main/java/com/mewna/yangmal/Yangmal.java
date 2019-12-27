@@ -49,7 +49,7 @@ public final class Yangmal extends AbstractExtension {
     private Function<Message, Completable> notCommandHandler = __ -> Completable.complete();
     private TriFunction<Message, String, Context, Completable> checksFailedHandler = (__, ___, ____) -> Completable.complete();
     private Consumer<Runnable> commandRunner = Runnable::run;
-    private Function<Context, ? super Context> contextMapper = ctx -> ctx;
+    private Function<Context, Context> contextMapper = ctx -> ctx;
     
     public Yangmal() {
         super("yangmal");
@@ -134,7 +134,7 @@ public final class Yangmal extends AbstractExtension {
     }
     
     @Nonnull
-    public Yangmal contextMapper(@Nonnull final Function<Context, ? super Context> contextMapper) {
+    public Yangmal contextMapper(@Nonnull final Function<Context, Context> contextMapper) {
         this.contextMapper = contextMapper;
         return this;
     }
