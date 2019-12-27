@@ -49,6 +49,7 @@ public final class Yangmal extends AbstractExtension {
     private Function<Message, Completable> notCommandHandler = __ -> Completable.complete();
     private TriFunction<Message, String, Context, Completable> checksFailedHandler = (__, ___, ____) -> Completable.complete();
     private Consumer<Runnable> commandRunner = Runnable::run;
+    private Function<Context, ? super Context> contextMapper = ctx -> ctx;
     
     public Yangmal() {
         super("yangmal");
@@ -129,6 +130,12 @@ public final class Yangmal extends AbstractExtension {
     @Nonnull
     public Yangmal commandRunner(@Nonnull final Consumer<Runnable> commandRunner) {
         this.commandRunner = commandRunner;
+        return this;
+    }
+    
+    @Nonnull
+    public Yangmal contextMapper(@Nonnull final Function<Context, ? super Context> contextMapper) {
+        this.contextMapper = contextMapper;
         return this;
     }
     
@@ -214,11 +221,12 @@ public final class Yangmal extends AbstractExtension {
                             .collect(Collectors.toUnmodifiableList()),
                     data -> Arrays.stream(data).allMatch(e -> e == Boolean.TRUE))
                     .subscribe(res2 -> {
+                        final Context mappedCtx = contextMapper.apply(ctx);
                         if(res2) {
                             logger.trace("Running command via all checks passing");
-                            doRunCommand(ctx);
+                            doRunCommand(mappedCtx);
                         } else {
-                            checksFailedHandler.consume(source, ctx.name(), ctx);
+                            checksFailedHandler.consume(source, mappedCtx.name(), mappedCtx);
                         }
                     }, e -> errorHandler.accept(e));
         }
@@ -237,7 +245,7 @@ public final class Yangmal extends AbstractExtension {
                     .filter(e -> e.isAnnotationPresent(Command.class))
                     .filter(e -> Modifier.isPublic(e.getModifiers()))
                     .forEach(method -> {
-                        if(method.getParameterCount() != 1 || !method.getParameters()[0].getType().equals(Context.class)) {
+                        if(method.getParameterCount() != 1 || !Context.class.isAssignableFrom(method.getParameters()[0].getType())) {
                             logger.error("Method {}#{} is invalid: doesn't take exactly 1 Context as its parameters.",
                                     cls.getName(), method.getName());
                         } else {
