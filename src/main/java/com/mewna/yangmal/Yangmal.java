@@ -105,7 +105,7 @@ public final class Yangmal extends AbstractExtension {
     
     @Nonnull
     public Yangmal constantPrefix(@Nonnull final String prefix) {
-        prefixSupplier = __ -> Single.just(List.of("!"));
+        prefixSupplier = __ -> Single.just(List.of(prefix));
         return this;
     }
     
