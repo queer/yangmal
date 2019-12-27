@@ -5,6 +5,8 @@ import com.mewna.yangmal.context.Context;
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Style;
 
+import java.lang.reflect.Method;
+
 /**
  * @author amy
  * @since 2/7/19.
@@ -15,6 +17,8 @@ public abstract class CommandContainer {
     public abstract Yangmal yangmal();
     
     public abstract Object object();
+    
+    public abstract Method method();
     
     public abstract MethodAccess access();
     
