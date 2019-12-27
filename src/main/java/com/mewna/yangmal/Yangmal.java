@@ -215,7 +215,7 @@ public final class Yangmal extends AbstractExtension {
         
         // Check if the command can even be run
         if(commandChecks.isEmpty()) {
-            doRunCommand(ctx);
+            doRunCommand(contextMapper.apply(ctx));
         } else {
             Single.zip(commandChecks.stream().map(f -> f.apply(ctx, source))
                             .collect(Collectors.toUnmodifiableList()),
