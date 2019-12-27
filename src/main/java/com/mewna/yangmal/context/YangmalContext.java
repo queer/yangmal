@@ -48,6 +48,7 @@ public class YangmalContext implements PopulatableContext {
         prefix = ctx.prefix;
         name = ctx.name;
         argstr = ctx.argstr;
+        reset();
     }
     
     @Nonnull
