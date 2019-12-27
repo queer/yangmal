@@ -41,10 +41,10 @@ public class YangmalContext implements PopulatableContext {
         args.clear();
         consumableArgs.clear();
         services.clear();
-        params.addAll(ctx.params);
+        params.putAll(ctx.params);
         args.addAll(ctx.args);
         consumableArgs.addAll(ctx.consumableArgs);
-        services.addAll(ctx.services);
+        services.putAll(ctx.services);
         prefix = ctx.prefix;
         name = ctx.name;
         argstr = ctx.argstr;
