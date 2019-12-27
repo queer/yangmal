@@ -56,6 +56,15 @@ public final class Yangmal extends AbstractExtension {
     }
     
     @Nonnull
+    public CommandContainer command(@Nonnull final String name) {
+        if(commands.containsKey(name)) {
+            return commands.get(name);
+        } else {
+            throw new IllegalArgumentException("Command " + name + " doesn't exist!");
+        }
+    }
+    
+    @Nonnull
     public Yangmal setup() {
         try(final ScanResult res = new ClassGraph().enableAllInfo().scan()) {
             res.getClassesWithMethodAnnotation(Command.class.getName())
@@ -261,6 +270,7 @@ public final class Yangmal extends AbstractExtension {
                                         .object(instance)
                                         .access(access)
                                         .index(index)
+                                        .method(method)
                                         .build());
                             }
                             logger.info("Loaded commands {} from class {}.", cmd.names(), cls.getName());
