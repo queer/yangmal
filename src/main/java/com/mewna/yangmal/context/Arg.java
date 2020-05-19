@@ -2,7 +2,7 @@ package com.mewna.yangmal.context;
 
 import com.mewna.yangmal.Yangmal;
 import com.mewna.yangmal.util.Result;
-import io.reactivex.Single;
+import io.reactivex.rxjava3.core.Single;
 import org.immutables.value.Value.Immutable;
 import org.immutables.value.Value.Style;
 

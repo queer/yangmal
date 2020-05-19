@@ -9,7 +9,7 @@
     <version>0.1.0</version>
 
     <properties>
-        <catnip.version>01237ea</catnip.version>
+        <catnip.version>2.0.0</catnip.version>
         <immutables.version>2.7.4</immutables.version>
         <derive4j.version>1.1.0</derive4j.version>
         <jsr305.version>3.0.2</jsr305.version>
