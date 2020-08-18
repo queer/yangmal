@@ -63,6 +63,11 @@ public final class Yangmal extends AbstractExtension {
             throw new IllegalArgumentException("Command " + name + " doesn't exist!");
         }
     }
+
+    @Nonnull
+    public List<CommandContainer> commands() {
+        return new ArrayList<>(commands.values());
+    }
     
     @Nonnull
     public Yangmal setup() {
