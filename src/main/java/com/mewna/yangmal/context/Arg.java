@@ -20,21 +20,37 @@ public interface Arg {
                 .val(string)
                 .build();
     }
-    
+
     Yangmal yangmal();
-    
+
     Context ctx();
-    
+
     String val();
-    
+
+    default boolean isUserMention() {
+        return val().matches("<@!?(\\d+)>");
+    }
+
+    default boolean isRoleMention() {
+        return val().matches("<@&(\\d+)>");
+    }
+
+    default boolean isChannelMention() {
+        return val().matches("<#(\\d+)>");
+    }
+
+    default boolean isCustomEmoji() {
+        return val().matches("<a?:([a-zA-Z0-9_]+):([0-9]+)>");
+    }
+
     default <T> Result<T, Throwable> as(final Class<T> as) {
         return cast(as);
     }
-    
+
     default <T> Result<T, Throwable> cast(final Class<T> as) {
         return castAsync(as).blockingGet();
     }
-    
+
     @SuppressWarnings("unchecked")
     default <T> Single<? extends Result<T, Throwable>> castAsync(final Class<T> as) {
         final var converter = yangmal().typeConverters().get(as);
