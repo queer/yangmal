@@ -19,5 +19,5 @@ public interface PopulatableContext extends EditableContext {
     
     void argstr(@Nullable String argstr);
     
-    void services(@Nonnull Map<Class<?>, Optional<?>> services);
+    void services(@Nonnull Map<Class<?>, Object> services);
 }

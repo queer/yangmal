@@ -4,7 +4,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Optional;
 
 /**
  * @author amy
@@ -16,30 +15,29 @@ public interface Context extends Iterable<Arg>, Iterator<Arg> {
      *
      * @param key The key to fetch for.
      * @param <T> The type of the key stored at the param.
-     *
      * @return The value, or {@code null} if no value is present.
      */
     @Nullable
     <T> T param(@Nonnull final String key);
-    
+
     /**
      * @return The prefix used to invoke this command.
      */
     @Nonnull
     String prefix();
-    
+
     /**
      * @return The name of the command that was invoked.
      */
     @Nonnull
     String name();
-    
+
     /**
      * @return The arguments passed to this command. May be empty.
      */
     @Nonnull
     Collection<Arg> args();
-    
+
     /**
      * Peek at the next argument without consuming it. Use {@link #next()} if
      * you want to consume it.
@@ -48,21 +46,20 @@ public interface Context extends Iterable<Arg>, Iterator<Arg> {
      */
     @Nullable
     Arg peek();
-    
+
     /**
      * Reset the context's iterable arguments so that they can be iterated again.
      */
     void reset();
-    
+
     /**
      * @return The argument string that was passed to this command.
      */
     @Nullable
     String argstr();
-    
+
     /**
      * @param cls The class to get the service for.
-     *
      * @return An optional that might contain the service of the given class.
      */
     @Nonnull
