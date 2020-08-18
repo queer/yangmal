@@ -66,5 +66,5 @@ public interface Context extends Iterable<Arg>, Iterator<Arg> {
      * @return An optional that might contain the service of the given class.
      */
     @Nonnull
-    <T> Optional<T> service(@Nonnull Class<T> cls);
+    <T> T service(@Nonnull Class<T> cls);
 }

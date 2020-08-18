@@ -12,7 +12,7 @@ public class YangmalContext implements PopulatableContext {
     private final Map<String, Object> params = new ConcurrentHashMap<>();
     private final Collection<Arg> args = new ArrayList<>();
     private final List<Arg> consumableArgs = new ArrayList<>();
-    private final Map<Class<?>, Optional<?>> services = new ConcurrentHashMap<>();
+    private final Map<Class<?>, Object> services = new ConcurrentHashMap<>();
     private String prefix;
     private String name;
     private String argstr;
@@ -36,7 +36,7 @@ public class YangmalContext implements PopulatableContext {
         populating = false;
     }
     
-    public void fillFrom(@Nonnull YangmalContext ctx) {
+    public void fillFrom(@Nonnull final YangmalContext ctx) {
         params.clear();
         args.clear();
         consumableArgs.clear();
@@ -132,8 +132,12 @@ public class YangmalContext implements PopulatableContext {
     @Nonnull
     @Override
     @SuppressWarnings("unchecked")
-    public <T> Optional<T> service(@Nonnull final Class<T> cls) {
-        return (Optional<T>) services.get(cls);
+    public <T> T service(@Nonnull final Class<T> cls) {
+        final T service = (T) services.get(cls);
+        if(service == null) {
+            throw new NullPointerException("No such service exists!");
+        }
+        return service;
     }
     
     @Nonnull
