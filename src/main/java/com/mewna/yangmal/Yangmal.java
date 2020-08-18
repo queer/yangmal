@@ -38,7 +38,7 @@ public final class Yangmal extends AbstractExtension {
     
     private final Map<String, CommandContainer> commands = new HashMap<>();
     private final Map<Class<?>, BiFunction<Context, Arg, Single<? extends Result<?, Throwable>>>> typeConverters = new ConcurrentHashMap<>();
-    private final Map<Class<?>, Optional<?>> contextServices = new ConcurrentHashMap<>();
+    private final Map<Class<?>, Object> contextServices = new ConcurrentHashMap<>();
     
     private final Collection<BiFunction<EditableContext, Message, Completable>> contextHooks = new ArrayList<>();
     private final Collection<BiFunction<Context, Message, Single<Boolean>>> commandChecks = new ArrayList<>();
@@ -101,7 +101,7 @@ public final class Yangmal extends AbstractExtension {
     
     @Nonnull
     public <T> Yangmal registerContextService(@Nonnull final Class<T> type, @Nonnull final T service) {
-        contextServices.put(type, Optional.of(service));
+        contextServices.put(type, service);
         return this;
     }
     

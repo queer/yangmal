@@ -121,7 +121,7 @@ public class YangmalContext implements PopulatableContext {
     }
     
     @Override
-    public void services(@Nonnull final Map<Class<?>, Optional<?>> services) {
+    public void services(@Nonnull final Map<Class<?>, Object> services) {
         if(!populating) {
             throw new IllegalStateException("Attempted to populate YangmalContext when not populating!");
         }
