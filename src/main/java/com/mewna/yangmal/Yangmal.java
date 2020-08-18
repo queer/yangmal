@@ -171,7 +171,7 @@ public final class Yangmal extends AbstractExtension {
                         final YangmalContext ctx = new YangmalContext();
                         ctx.startAcceptingParams();
                         // Have to do a copy to make it effectively final :K
-                        final String argstr = source.content().substring(prefix.length());
+                        final String argstr = source.content().substring(prefix.length()).strip();
                         if(!argstr.isEmpty()) {
                             // If the argstr isn't empty after removing the prefix, then we must have at least a name
                             final String finalPrefix = prefix;
