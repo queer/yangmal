@@ -60,7 +60,7 @@ public final class Yangmal extends AbstractExtension {
         if(commands.containsKey(name)) {
             return commands.get(name);
         } else {
-            throw new IllegalArgumentException("Command " + name + " doesn't exist!");
+            errorHandler.accept(new IllegalArgumentException("Command " + name + " doesn't exist!"));
         }
     }
 
@@ -160,7 +160,9 @@ public final class Yangmal extends AbstractExtension {
     
     @SuppressWarnings({"WeakerAccess", "ResultOfMethodCallIgnored"})
     public void runCommand(@Nonnull final Message source) {
-        prefixSupplier.apply(source).subscribeOn(catnip().rxScheduler()).observeOn(catnip().rxScheduler())
+        prefixSupplier.apply(source)
+                .subscribeOn(catnip().rxScheduler())
+                .observeOn(catnip().rxScheduler())
                 .subscribe(prefixes -> {
                     // Test for prefixes
                     String prefix = null;
