@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -55,15 +56,11 @@ public final class Yangmal extends AbstractExtension {
         super("yangmal");
     }
     
-    @Nonnull
+    @Nullable
     public CommandContainer command(@Nonnull final String name) {
-        if(commands.containsKey(name)) {
-            return commands.get(name);
-        } else {
-            errorHandler.accept(new IllegalArgumentException("Command " + name + " doesn't exist!"));
-        }
+        return commands.getOrDefault(name, null);
     }
-
+    
     @Nonnull
     public List<CommandContainer> commands() {
         return new ArrayList<>(commands.values());
