@@ -224,6 +224,7 @@ public final class Yangmal extends AbstractExtension {
         }
         
         ctx.stopPopulating();
+        ctx.reset();
         logger.trace("Finished populating context");
         
         // Check if the command can even be run
