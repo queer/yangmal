@@ -215,7 +215,7 @@ public final class Yangmal extends AbstractExtension {
         ctx.name(name);
         if(nameArgSplit.length > 1) {
             ctx.argstr(nameArgSplit[1]);
-            ctx.args(Arrays.stream(nameArgSplit[1].split("\\s+", 2))
+            ctx.args(Arrays.stream(nameArgSplit[1].split("\\s+"))
                     .map(e -> Arg.create(this, ctx, e))
                     .collect(Collectors.toList()));
         } else {
