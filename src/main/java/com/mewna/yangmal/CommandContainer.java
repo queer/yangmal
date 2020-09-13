@@ -24,6 +24,8 @@ public abstract class CommandContainer {
     
     public abstract int index();
     
+    public abstract String name();
+    
     public abstract String description();
     
     public abstract String[] usage();
