@@ -24,6 +24,12 @@ public abstract class CommandContainer {
     
     public abstract int index();
     
+    public abstract String description();
+    
+    public abstract String[] usage();
+    
+    public abstract String[] examples();
+    
     void invoke(final Context ctx) {
         try {
             access().invoke(object(), index(), ctx);

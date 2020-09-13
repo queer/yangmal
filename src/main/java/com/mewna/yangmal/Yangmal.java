@@ -276,6 +276,9 @@ public final class Yangmal extends AbstractExtension {
                                         .access(access)
                                         .index(index)
                                         .method(method)
+                                        .description(cmd.description())
+                                        .usage(cmd.usage())
+                                        .examples(cmd.examples())
                                         .build());
                             }
                             logger.info("Loaded commands {} from class {}.", cmd.names(), cls.getName());
