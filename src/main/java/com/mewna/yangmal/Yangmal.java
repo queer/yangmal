@@ -276,7 +276,7 @@ public final class Yangmal extends AbstractExtension {
                                         .access(access)
                                         .index(index)
                                         .method(method)
-                                        .name(name)
+                                        .names(cmd.names())
                                         .description(cmd.description())
                                         .usage(cmd.usage())
                                         .examples(cmd.examples())
